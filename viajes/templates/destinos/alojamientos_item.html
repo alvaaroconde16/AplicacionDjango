@@ -1,0 +1,20 @@
+<div>
+    <h2>Nombre: {{ alojamiento.nombre }} </h2>
+    <p>Dirección: {{ alojamiento.direccion }}</p>
+    <p>Capacidad: {{ alojamiento.capacidad }}</p>
+    <p>Tipo: {{ alojamiento.tipo }}</p>
+    <p>Destino: {{ alojamiento.destino.nombre }}</p>
+
+    <!-- Enlace estilizado como botón para actualizar el alojamiento -->
+    <a href="{% url 'actualizar_alojamiento' alojamiento.id %}" class="btn btn-outline-success mt-2 mb-5">Actualizar Alojamiento</a>
+
+    <!-- Formulario para eliminar el alojamiento con confirmación -->
+    <form method="post" action="{% url 'eliminar_alojamiento' alojamiento.id %}" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger mt-2 mb-5" 
+            onclick="return confirm('¿Estás seguro de que deseas eliminar este alojamiento? Esta acción no se puede deshacer.');">
+            Eliminar Alojamiento
+        </button>
+    </form>
+
+</div>
