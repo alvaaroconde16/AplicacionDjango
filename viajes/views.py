@@ -151,7 +151,7 @@ def destino_create(request):
     return render(request, 'formularios/destino_form.html', {'form': form})
 
 
-
+@login_required
 def reserva_create(request):
     if request.method == 'POST':
         form = ReservaForm(request.POST)
@@ -256,7 +256,7 @@ def usuario_busqueda(request):
     return render(request, 'formularios/usuario_busqueda.html', {'formulario': formulario})
 
 
-
+@login_required
 def reserva_busqueda(request):
     # Si se ha enviado el formulario (request.GET contiene datos)
     if request.GET:
@@ -269,7 +269,10 @@ def reserva_busqueda(request):
             numero_personas = formulario.cleaned_data.get('numero_personas')
 
             # Empezamos con todos las reservas
-            reservas = Reserva.objects.all()
+            if request.user.role == 1:
+                reservas = Reserva.objects.all()
+            else :
+                reservas = Reserva.objects.filter(usuario = request.user)
 
             # Filtro por nombre de reserva
             if codigo_reserva:

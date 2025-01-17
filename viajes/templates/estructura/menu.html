@@ -43,7 +43,7 @@
                 {% endif %}
 
 
-                {% if request.user.is_authenticated and request.user.role == 1 or request.user.role == 3 %}
+                {% if request.user.is_authenticated and request.user.role == 1 %}
                 <!-- Usuarios -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="usuariosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -73,20 +73,24 @@
                             Reservas
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="reservasDropdown">
-                            <li><a class="dropdown-item" href="{% url 'listar_reservas' %}">Lista de reservas</a></li>
 
-                            {% if request.user.role == 3 or request.user.role == 1 %}
+                            <!--Si el usuario es administrador o proveedor-->
+                            {% if request.user.role == 1 or request.user.role == 3 %}
+                                <li><a class="dropdown-item" href="{% url 'listar_reservas' %}">Lista de reservas</a></li>
+                            {% endif %}
+
+                            {% if request.user.role == 2 %}
+                                <li><a class="dropdown-item" href="{% url 'listar_reservasUsuario' request.user.id %}">Lista de reservas</a></li>
+                            {% endif %}
+
+                            {% if request.user.role == 1 %}
                             <li><a class="dropdown-item" href="{% url 'listar_reservasUsuario' 10 %}">Reservas del usuario 10</a></li>
                             {% endif %}
 
                             <li><a class="dropdown-item" href="{% url 'reservas_rango' '2000-01-01' '2024-12-31' %}">Reservas entre fechas</a></li>
                             <li><a class="dropdown-item" href="{% url 'reservas_sin_extras' %}">Reservas sin extras</a></li>
                             <li><a class="dropdown-item" href="{% url 'total_precios_reservas' %}">Total precios reservas</a></li>
-
-                            {% if request.user.is_authenticated and request.user.role == 3 or request.user.role == 1 %}
                             <li><a class="dropdown-item" href="{% url 'reserva_create' %}">Crear reserva</a></li>
-                            {% endif %}
-
                             <li><a class="dropdown-item" href="{% url 'reserva_busqueda' %}">Buscar reserva</a></li>
                         </ul>
                     </li>
@@ -102,8 +106,8 @@
                         <li><a class="dropdown-item" href="{% url 'listar_destinos' %}">Lista de destinos</a></li>
                         <li><a class="dropdown-item" href="{% url 'alojamientos_destino' 6 %}">Alojamientos del destino 6</a></li>
 
-                        {% if request.user.is_authenticated and request.user.role == 3 or request.user.role == 1 %}
-                        <li><a class="dropdown-item" href="{% url 'destino_create' %}">Crear destino</a></li>
+                        {% if request.user.is_authenticated and request.user.role == 1 %}
+                            <li><a class="dropdown-item" href="{% url 'destino_create' %}">Crear destino</a></li>
                         {% endif %}
                         
                         <li><a class="dropdown-item" href="{% url 'destino_busqueda' %}">Buscar destino</a></li>
@@ -120,7 +124,7 @@
                         <li><a class="dropdown-item" href="{% url 'listar_alojamientos' %}">Lista de alojamientos</a></li>
                         <li><a class="dropdown-item" href="{% url 'alojamientos_destino' 6 %}">Alojamientos del destino 6</a></li>
 
-                        {% if request.user.is_authenticated and request.user.role == 3 or request.user.role == 1 %}
+                        {% if request.user.is_authenticated and request.user.role == 1 %}
                         <li><a class="dropdown-item" href="{% url 'alojamiento_create' %}">Crear alojamiento</a></li>
                         {% endif %}
                         
