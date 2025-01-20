@@ -10,15 +10,14 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
 
-                <li class="nav-item text-white">
-                    Fecha inicio:
-                    <br>
-                    {{ request.session.fecha_inicio }}
-                </li>
-
-
                 <!-- Mostramos el rol del usuario -->
                 {% if request.user.is_authenticated %}
+                    <li class="nav-item text-white">
+                        Fecha inicio:
+                        <br>
+                        {{ request.session.fecha_inicio }}
+                    </li>
+
                     <li class="nav-item text-white">
                         Rol: 
                         <br>
@@ -30,11 +29,7 @@
                         Proveedor
                         {% endif %}
                     </li>
-                {% endif %}
 
-
-                <!-- Mostramos el nombre del usuario logueado -->
-                {% if request.user.is_authenticated %}
                     <li class="nav-item text-white">
                         Usuario: 
                         <br>
