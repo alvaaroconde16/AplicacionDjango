@@ -143,7 +143,7 @@ class ReservaForm(forms.ModelForm):
         widgets = {
             "fecha_salida":forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "fecha_llegada":forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
-        }
+        }   
         
     
     def clean(self):

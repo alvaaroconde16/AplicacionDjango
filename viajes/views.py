@@ -199,11 +199,26 @@ def comentario_create(request):
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
-            form.save()  # Guarda la nueva reserva en la base de datos
+            comentario = form.save(commit=False)  # Guarda la nueva reserva en la base de datos
+            
+            if request.user.rol != 1:
+                comentario.usuario = request.user
+            
+            comentario.save()
             messages.success(request, 'Comentario creado con éxito.')
-            return redirect('listar_comentarios')  # Redirige a la lista de reservas después de crear
+            if request.user.rol == 1:
+                return redirect('listar_comentarios')
+            else:
+                return redirect('comentarios_usuario', id_usuario=request.user.id)
     else:
-        form = ComentarioForm()  # Si la solicitud es GET, muestra el formulario vacío
+        # Si el usuario es administrador, le permitimos seleccionar otro usuario
+        if request.user.rol == 1:
+            form = ComentarioForm()  # Mostrar formulario normal
+        else:
+            # Si el usuario no es administrador, pre-poblar el campo con su nombre y hacerlo solo de lectura
+            form = ComentarioForm()
+            form.fields['usuario'].initial = request.user  # Pre-poblar con el nombre del usuario
+            form.fields['usuario'].widget = forms.HiddenInput()  # Ocultamos el campo
 
     return render(request, 'formularios/comentario_form.html', {'form': form})
 
