@@ -23,7 +23,7 @@ class Usuario(AbstractUser):
     fecha_registro = models.DateField(null=True, blank=True)
     imagen = models.ImageField(upload_to='usuarios/', null=True, blank=True)
     
-    role = models.PositiveSmallIntegerField(choices=ROLES, default=1)
+    rol = models.PositiveSmallIntegerField(choices=ROLES, default=1)
     
 
 

@@ -1,4 +1,4 @@
-#!/home/alumnado/Git/2-DAW/DesarrolloWebServidor/AplicacionWeb/myvenv/bin/python3
+#!/home/alvaro/GitHub/AplicacionDjango/myvenv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

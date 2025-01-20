@@ -9,10 +9,15 @@
         <p>Destino altamente popular.</p>
     {% endif %}
 
+
     <!-- Enlace estilizado como botón para actualizar el destino -->
+    {% if perms.viajes.actualizar_destino %}
     <a href="{% url 'actualizar_destino' destino.id %}" class="btn btn-outline-success mt-2 mb-5">Actualizar Destino</a>
+    {% endif %}
+
 
     <!-- Formulario para eliminar el destino con confirmación -->
+    {% if perms.viajes.eliminar_destino %}
     <form method="post" action="{% url 'eliminar_destino' destino.id %}" class="d-inline">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger mt-2 mb-5" 
@@ -20,5 +25,6 @@
             Eliminar Destino
         </button>
     </form>
+    {% endif %}
 
 </div>

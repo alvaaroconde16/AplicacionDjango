@@ -5,10 +5,15 @@
     <p>Tipo: {{ alojamiento.tipo }}</p>
     <p>Destino: {{ alojamiento.destino.nombre }}</p>
 
+
     <!-- Enlace estilizado como botón para actualizar el alojamiento -->
+    {% if perms.viajes.actualizar_alojamiento %}
     <a href="{% url 'actualizar_alojamiento' alojamiento.id %}" class="btn btn-outline-success mt-2 mb-5">Actualizar Alojamiento</a>
+    {% endif %}
+
 
     <!-- Formulario para eliminar el alojamiento con confirmación -->
+    {% if perms.viajes.eliminar_alojamiento %}
     <form method="post" action="{% url 'eliminar_alojamiento' alojamiento.id %}" class="d-inline">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger mt-2 mb-5" 
@@ -16,5 +21,6 @@
             Eliminar Alojamiento
         </button>
     </form>
+    {% endif %}
 
 </div>
