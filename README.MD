@@ -675,3 +675,81 @@ Este proyecto utiliza Django para gestionar usuarios y permitir la subida de im�
 - **Error "No hay imagen"**: Si las imágenes no se muestran correctamente, asegúrate de que la carpeta `media/usuarios/` exista en tu proyecto y de que los archivos se estén guardando correctamente en ella. También, verifica que las configuraciones de `MEDIA_URL` y `MEDIA_ROOT` en `settings.py` estén correctamente definidas.
 
 - **Revisar Configuración de URLs**: Si las imágenes no se sirven, asegúrate de que la configuración en `urls.py` incluye la ruta a los archivos de medios en modo de desarrollo.
+
+
+
+# #########################################################################################################################################################################
+
+
+
+# Gestión de Tareas y Reservas
+
+Este proyecto implementa una plataforma para gestionar tareas, reservas, usuarios, comentarios y promociones, con diferentes permisos según el rol del usuario.
+
+## Tipos de Usuario
+
+### 1. **Administrador (Rol: 1)**
+
+El administrador tiene acceso completo a todas las funcionalidades del sistema, incluyendo la gestión de usuarios, reservas, destinos, alojamientos, comentarios y promociones. Las acciones específicas incluyen:
+- **Usuarios**: Listar, crear, buscar, ver usuarios con pasaporte español, ver último usuario en comentar.
+- **Reservas**: Ver, crear, buscar, y gestionar todas las reservas.
+- **Destinos**: Listar, crear y buscar destinos.
+- **Alojamientos**: Listar, crear y buscar alojamientos.
+- **Comentarios**: Listar, crear, buscar comentarios.
+- **Promociones**: Listar, crear, buscar promociones.
+
+### 2. **Cliente (Rol: 2)**
+
+El cliente tiene acceso a funcionalidades relacionadas con sus propias reservas y comentarios. Las acciones específicas incluyen:
+- **Usuarios**: Ver su propio perfil.
+- **Reservas**: Ver, crear, y buscar sus propias reservas.
+- **Destinos**: Ver los destinos disponibles.
+- **Alojamientos**: Ver alojamientos por destino.
+- **Comentarios**: Crear y ver sus propios comentarios.
+- **Promociones**: Ver promociones disponibles.
+- **Contraseña**: Cambiar su contraseña.
+
+### 3. **Proveedor (Rol: 3)**
+
+El proveedor tiene un acceso limitado similar al cliente, pero con más capacidades sobre las reservas. Las acciones específicas incluyen:
+- **Usuarios**: Ver su propio perfil.
+- **Reservas**: Ver, crear y buscar todas las reservas.
+- **Destinos**: Ver los destinos disponibles.
+- **Alojamientos**: Ver alojamientos por destino.
+- **Comentarios**: Crear y ver sus propios comentarios.
+- **Promociones**: Ver promociones disponibles.
+
+---
+
+## Funcionalidades del Menú
+
+### Para Administradores:
+- **Usuarios**: Listar, crear y gestionar usuarios.
+- **Reservas**: Ver todas las reservas, crear y gestionar reservas.
+- **Destinos**: Crear y gestionar destinos.
+- **Alojamientos**: Crear y gestionar alojamientos.
+- **Comentarios**: Listar y gestionar comentarios.
+- **Promociones**: Crear y gestionar promociones.
+
+### Para Clientes:
+- **Reservas**: Gestionar sus propias reservas.
+- **Destinos**: Ver los destinos disponibles.
+- **Alojamientos**: Ver alojamientos de destinos.
+- **Comentarios**: Crear y ver sus propios comentarios.
+- **Promociones**: Ver promociones.
+
+### Para Proveedores:
+- **Reservas**: Gestionar reservas.
+- **Destinos**: Ver destinos.
+- **Alojamientos**: Ver alojamientos.
+- **Comentarios**: Crear y ver sus propios comentarios.
+- **Promociones**: Ver promociones.
+
+---
+
+## Reinicio de Contraseña
+
+Para reiniciar la contraseña, el sistema envía un enlace de recuperación por correo electrónico. En entornos locales, puedes configurar el backend para mostrar este enlace directamente en la consola de desarrollo usando el siguiente ajuste en el archivo `settings.py`:
+
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -143,3 +143,7 @@ AUTH_USER_MODEL = 'viajes.Usuario'
 
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
+
+
+# Configuración para el envío de correos en la consola (solo en desarrollo)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
