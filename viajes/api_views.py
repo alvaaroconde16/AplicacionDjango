@@ -9,3 +9,5 @@ from .forms import *
 def reserva_list(request):
     
     reservas = Reserva.objects.all()
+    serializer = ReservaSerializer(reservas, many=True)
+    return Response(serializer.data)
