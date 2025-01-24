@@ -135,7 +135,7 @@ class ReservaForm(forms.ModelForm):
         model = Reserva
         fields = ['codigo_reserva', 'fecha_salida', 'fecha_llegada', 'numero_personas', 'precio', 'usuario']
         help_texts = {
-            "nombre": ("200 caracteres como máximo"),
+            "codigo_reserva": ("200 caracteres como máximo"),
             "fecha_salida": ("La fecha de salida debe ser igual o mayor a hoy"),
             "numero_personas": ("El número de personas debe ser 1 como mínimo"),
             "precio": ("El precio debe ser un valor positivo"),
@@ -143,7 +143,7 @@ class ReservaForm(forms.ModelForm):
         widgets = {
             "fecha_salida":forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "fecha_llegada":forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
-        }
+        }   
         
     
     def clean(self):
@@ -587,14 +587,16 @@ class BusquedaPromocionForm(forms.Form):
 
 class RegistroForm(UserCreationForm):
     roles = (
+        ("", "NINGUNO"),
         (Usuario.CLIENTE, 'cliente'),
         (Usuario.PROVEEDOR, 'proveedor'),
     )
 
-    role = forms.ChoiceField(choices=roles)
+    rol = forms.ChoiceField(choices=roles)
     empresa = forms.CharField(max_length=200, required=False, label="Nombre de la Empresa")
     rating = forms.FloatField(required=False,label="Calificación Promedia")
 
     class Meta:
         model = Usuario
-        fields = ('nombre', 'username', 'correo', 'telefono', 'password1', 'password2', 'role')
+        fields = ('nombre', 'username', 'email', 'telefono', 'password1', 'password2', 'rol')
+

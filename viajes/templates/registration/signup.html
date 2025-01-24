@@ -12,13 +12,13 @@
 
 <script>
     // Seleccionar los elementos del formulario
-    let role = document.querySelector('select[name="role"]');
+    let rol = document.querySelector('select[name="rol"]');
     let empresa = document.querySelector('input[name="empresa"]').parentElement;
     let rating = document.querySelector('input[name="rating"]').parentElement; 
 
     // Función para mostrar/ocultar campos
     function mostrar() {
-        if (role.value == '3') {  // '3' es el valor para "Proveedor"
+        if (rol.value == '3') {  // '3' es el valor para "Proveedor"
             empresa.style.display = 'block'; // Mostrar el campo empresa
             rating.style.display = 'block'; // Mostrar el campo rating
         } else {
@@ -31,7 +31,7 @@
     mostrar();
 
     // Agregar evento para cambiar campos al cambiar el rol
-    role.addEventListener('change', mostrar);
+    rol.addEventListener('change', mostrar);
 </script>
 
 

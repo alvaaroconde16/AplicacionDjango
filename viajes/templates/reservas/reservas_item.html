@@ -13,10 +13,15 @@
 
     <p>Precio: {{ reserva.precio|floatformat:2 }}</p>
 
+
     <!-- Enlace estilizado como botón para actualizar la reserva -->
+    {% if perms.viajes.actualizar_reserva %}
     <a href="{% url 'actualizar_reserva' reserva.id %}" class="btn btn-outline-success mt-2 mb-5">Actualizar Reserva</a>
+    {% endif %}
+
 
     <!-- Formulario para eliminar la reserva con confirmación -->
+    {% if perms.viajes.eliminar_reserva %}
     <form method="post" action="{% url 'eliminar_reserva' reserva.id %}" class="d-inline">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger mt-2 mb-5" 
@@ -24,5 +29,6 @@
             Eliminar Reserva
         </button>
     </form>
+    {% endif %}
 
 </div>

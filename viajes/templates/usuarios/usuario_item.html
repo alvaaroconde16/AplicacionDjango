@@ -27,10 +27,14 @@
     </div>
 
 
+        {% if perms.viajes.actualizar_usuario %}
         <!-- Enlace estilizado como botón para actualizar el usuario -->
         <a href="{% url 'actualizar_usuario' usuario.id %}" class="btn btn-outline-success mt-2 mb-5">Actualizar Usuario</a>
-        
+        {% endif %}
+
+
         <!-- Formulario para eliminar el usuario con confirmación -->
+        {% if perms.viajes.eliminar_usuario %}
         <form method="post" action="{% url 'eliminar_usuario' usuario.id %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-danger mt-2 mb-5" 
@@ -38,6 +42,7 @@
                 Eliminar Usuario
             </button>
         </form>
+        {% endif %}
     </div>
 
     {% comment %}

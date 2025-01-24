@@ -21,11 +21,11 @@
                     <li class="nav-item text-white">
                         Rol: 
                         <br>
-                        {% if request.user.role == 1 %}
+                        {% if request.user.rol == 1 %}
                         Administrador
-                        {% elif request.user.role == 2 %}
+                        {% elif request.user.rol == 2 %}
                         Cliente
-                        {% elif request.user.role == 3 %}
+                        {% elif request.user.rol == 3 %}
                         Proveedor
                         {% endif %}
                     </li>
@@ -38,24 +38,30 @@
                 {% endif %}
 
 
-                {% if request.user.is_authenticated and request.user.role == 1 %}
+                
                 <!-- Usuarios -->
+                {% if request.user.is_authenticated and request.user.rol == 1 %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="usuariosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Usuarios
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="usuariosDropdown">
-                        <li><a class="dropdown-item" href="{% url 'listar_usuarios' %}">Lista de usuarios</a></li>
+                        {% if perms.viajes.listar_usuarios  %}
+                            <li><a class="dropdown-item" href="{% url 'listar_usuarios' %}">Lista de usuarios</a></li>
+                        {% endif %}
+
                         <li><a class="dropdown-item" href="{% url 'pasaporte_nacionalidad' 'Española' %}">Usuarios con pasaporte español</a></li>
                         <li><a class="dropdown-item" href="{% url 'ultimo_usuario_comentar' %}">Último usuario en comentar</a></li>
                         <li><a class="dropdown-item" href="{% url 'comentarios_usuario' 8 %}">Comentarios del usuario 8</a></li>
 
-                        {% if request.user.is_authenticated and request.user.role == 1  %}
-                        <li><a class="dropdown-item" href="{% url 'usuario_create' %}">Crear usuario</a></li>
+                        {% if request.user.is_authenticated and perms.viajes.crear_usuario  %}
+                            <li><a class="dropdown-item" href="{% url 'usuario_create' %}">Crear usuario</a></li>
                         {% endif %}
 
+                        {% if request.user.is_authenticated and perms.viajes.buscar_usuario %}
                         <li><a class="dropdown-item" href="{% url 'usuario_busqueda' %}">Buscar usuario</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 {% endif %}
@@ -70,23 +76,27 @@
                         <ul class="dropdown-menu" aria-labelledby="reservasDropdown">
 
                             <!--Si el usuario es administrador o proveedor-->
-                            {% if request.user.role == 1 or request.user.role == 3 %}
+                            {% if request.user.rol == 3 or request.user.rol == 1 %}
                                 <li><a class="dropdown-item" href="{% url 'listar_reservas' %}">Lista de reservas</a></li>
                             {% endif %}
 
-                            {% if request.user.role == 2 %}
+                            {% if request.user.rol == 2 %}
                                 <li><a class="dropdown-item" href="{% url 'listar_reservasUsuario' request.user.id %}">Lista de reservas</a></li>
                             {% endif %}
 
-                            {% if request.user.role == 1 %}
-                            <li><a class="dropdown-item" href="{% url 'listar_reservasUsuario' 10 %}">Reservas del usuario 10</a></li>
+                            {% if request.user.rol == 1 %}
+                                <li><a class="dropdown-item" href="{% url 'listar_reservasUsuario' 10 %}">Reservas del usuario 10</a></li>
                             {% endif %}
 
-                            <li><a class="dropdown-item" href="{% url 'reservas_rango' '2000-01-01' '2024-12-31' %}">Reservas entre fechas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'reservas_sin_extras' %}">Reservas sin extras</a></li>
-                            <li><a class="dropdown-item" href="{% url 'total_precios_reservas' %}">Total precios reservas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'reserva_create' %}">Crear reserva</a></li>
-                            <li><a class="dropdown-item" href="{% url 'reserva_busqueda' %}">Buscar reserva</a></li>
+                            {% if request.user.rol == 3 or request.user.rol == 1 %}
+                                <li><a class="dropdown-item" href="{% url 'reservas_sin_extras' %}">Reservas sin extras</a></li>
+                                <li><a class="dropdown-item" href="{% url 'total_precios_reservas' %}">Total precios reservas</a></li>
+                            {% endif %}
+
+                            {% if request.user.rol == 2 or request.user.rol == 1 %}
+                                <li><a class="dropdown-item" href="{% url 'reserva_create' %}">Crear reserva</a></li>
+                                <li><a class="dropdown-item" href="{% url 'reserva_busqueda' %}">Buscar reserva</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}
@@ -99,12 +109,13 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="destinosDropdown">
                         <li><a class="dropdown-item" href="{% url 'listar_destinos' %}">Lista de destinos</a></li>
-                        <li><a class="dropdown-item" href="{% url 'alojamientos_destino' 6 %}">Alojamientos del destino 6</a></li>
+                        <li><a class="dropdown-item" href="{% url 'alojamientos_destino' 2 %}">Alojamientos del destino 2</a></li>
 
-                        {% if request.user.is_authenticated and request.user.role == 1 %}
+                        {% if perms.viajes.crear_destino %}
                             <li><a class="dropdown-item" href="{% url 'destino_create' %}">Crear destino</a></li>
                         {% endif %}
                         
+
                         <li><a class="dropdown-item" href="{% url 'destino_busqueda' %}">Buscar destino</a></li>
                     </ul>
                 </li>
@@ -117,10 +128,10 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="destinosDropdown">
                         <li><a class="dropdown-item" href="{% url 'listar_alojamientos' %}">Lista de alojamientos</a></li>
-                        <li><a class="dropdown-item" href="{% url 'alojamientos_destino' 6 %}">Alojamientos del destino 6</a></li>
+                        <li><a class="dropdown-item" href="{% url 'alojamientos_destino' 2 %}">Alojamientos del destino 2</a></li>
 
-                        {% if request.user.is_authenticated and request.user.role == 1 %}
-                        <li><a class="dropdown-item" href="{% url 'alojamiento_create' %}">Crear alojamiento</a></li>
+                        {% if perms.viajes.crear_alojamiento %}
+                            <li><a class="dropdown-item" href="{% url 'alojamiento_create' %}">Crear alojamiento</a></li>
                         {% endif %}
                         
                         <li><a class="dropdown-item" href="{% url 'alojamiento_busqueda' %}">Buscar alojamiento</a></li>
@@ -134,15 +145,26 @@
                         Comentarios
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="destinosDropdown">
-                        <li><a class="dropdown-item" href="{% url 'listar_comentarios' %}">Lista de comentarios</a></li>
+                        {% if request.user.rol != 2 %}
+                            <li><a class="dropdown-item" href="{% url 'listar_comentarios' %}">Lista de comentarios</a></li>
+                        {% endif %}
 
-                        {% if request.user.is_authenticated and request.user.role == 3 or request.user.role == 1 %}
-                        <li><a class="dropdown-item" href="{% url 'ultimo_usuario_comentar' %}">Último Usuario en comentar</a></li>
+                        {% if request.user.is_authenticated and request.user.rol == 3 or request.user.rol == 1 %}
+                            <li><a class="dropdown-item" href="{% url 'ultimo_usuario_comentar' %}">Último Usuario en comentar</a></li>
                         {% endif %}
                         
-                        <li><a class="dropdown-item" href="{% url 'comentarios_usuario' 8 %}">Comentarios del usuario 8</a></li>
-                        <li><a class="dropdown-item" href="{% url 'comentario_create' %}">Crear comentario</a></li>
+                        {% if request.user.is_authenticated and request.user.rol == 2 %}
+                            <li><a class="dropdown-item" href="{% url 'comentarios_usuario' request.user.id %}">Lista de comentarios</a></li>
+                        {% endif %}
+                        
+
+                        {% if request.user.is_authenticated and request.user.rol == 2 or request.user.rol == 1 %}
+                            <li><a class="dropdown-item" href="{% url 'comentario_create' %}">Crear comentario</a></li>
+                        {% endif %}
+
+                        {% if request.rol.user == 1 or request.user.rol == 3 %}
                         <li><a class="dropdown-item" href="{% url 'comentario_busqueda' %}">Buscar comentario</a></li>
+                        {% endif %}
                     </ul>
                 </li>
 
@@ -155,7 +177,7 @@
                     <ul class="dropdown-menu" aria-labelledby="promocionesDropdown">
                         <li><a class="dropdown-item" href="{% url 'listar_promociones' %}">Lista de promociones</a></li>
 
-                        {% if request.user.is_authenticated and request.user.role == 3 or request.user.role == 1 %}
+                        {% if perms.viajes.crear_promocion %}
                         <li><a class="dropdown-item" href="{% url 'promocion_create' %}">Crear promocion</a></li>
                         {% endif %}
 

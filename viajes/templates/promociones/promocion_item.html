@@ -11,9 +11,13 @@
 
 
     <!-- Enlace estilizado como botón para actualizar la promocion -->
+    {% if perms.viajes.actualizar_promocion %}
     <a href="{% url 'actualizar_promocion' promocion.id %}" class="btn btn-outline-success mt-2 mb-5">Actualizar promocion</a>
+    {% endif %}
+
 
     <!-- Formulario para eliminar la reserva con confirmación -->
+    {% if perms.viajes.eliminar_promocion %}
     <form method="post" action="{% url 'eliminar_promocion' promocion.id %}" class="d-inline">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-danger mt-2 mb-5" 
@@ -21,6 +25,7 @@
             Eliminar promoción
         </button>
     </form>
+    {% endif %}
 
     {% comment %}
         Este bloque de código es solo para mostrar los detalles de la reserva

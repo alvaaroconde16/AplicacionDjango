@@ -5,7 +5,7 @@ from .forms import *
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 # Create your views here.
 def index(request):
@@ -16,6 +16,7 @@ def index(request):
     return render(request, 'principal.html')
 
 
+@permission_required('viajes.listar_usuarios')
 #Empezamos mostrando una lista con todos los usuarios
 def listar_usuarios(request):
     usuario = Usuario.objects.select_related('pasaporte').all()
@@ -85,13 +86,12 @@ def alojamientos_destino(request, id_destino):
     return render(request, 'destinos/alojamientos.html', {'alojamientos_mostrar':alojamiento})
 
 
-
+@permission_required('viajes.pasaporte')
 #Mostramos los usuarios que tengan en su pasaporte la misma nacionalidad o Española. Usamos el parámetro OR
 def pasaporte_nacionalidad(request, nacionalidad):
     usuario = Usuario.objects.select_related("pasaporte").filter(Q(pasaporte__nacionalidad=nacionalidad) | Q(pasaporte__nacionalidad='Española'))
 
     return render(request, 'usuarios/lista.html', {'usuario':usuario})
-
 
 
 # Vamos a mostrar el último usuario que comento. Usamos el order_by para ordenar la fecha de comentario y el limit para coger uno solo que será el último
@@ -122,7 +122,7 @@ def total_precios_reservas(request):
 
 ################################################################        AQUÍ COMIENZAN LOS CREATE      #################################################################
 
-
+@permission_required('viajes.crear_usuario')
 #A partir de aquí, creamos todos los formulario de creación.
 def usuario_create(request):
     if request.method == 'POST':
@@ -137,7 +137,7 @@ def usuario_create(request):
     return render(request, 'formularios/usuario_form.html', {'form': form})
 
 
-
+@permission_required('viajes.crear_destino')
 def destino_create(request):
     if request.method == 'POST':
         form = DestinoForm(request.POST)
@@ -156,16 +156,31 @@ def reserva_create(request):
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
-            form.save()  # Guarda la nueva reserva en la base de datos
+            reserva = form.save(commit=False)  # Guarda la nueva reserva en la base de datos
+            
+            if request.user.rol != 1:
+                reserva.usuario = request.user
+
+            reserva.save()
             messages.success(request, 'Reserva creada con éxito.')
-            return redirect('listar_reservas')  # Redirige a la lista de reservas después de crear
+            if request.user.rol == 1:
+                return redirect('listar_reservas')
+            else:
+                return redirect('listar_reservasUsuario', id_usuario=request.user.id)
     else:
-        form = ReservaForm()  # Si la solicitud es GET, muestra el formulario vacío
+        # Si el usuario es administrador, le permitimos seleccionar otro usuario
+        if request.user.rol == 1:
+            form = ReservaForm()  # Mostrar formulario normal
+        else:
+            # Si el usuario no es administrador, pre-poblar el campo con su nombre y hacerlo solo de lectura
+            form = ReservaForm()
+            form.fields['usuario'].initial = request.user  # Pre-poblar con el nombre del usuario
+            form.fields['usuario'].widget = forms.HiddenInput()  # Ocultamos el campo
 
     return render(request, 'formularios/reserva_form.html', {'form': form})
 
 
-
+@login_required
 def alojamiento_create(request):
     if request.method == 'POST':
         form = AlojamientoForm(request.POST)
@@ -179,22 +194,37 @@ def alojamiento_create(request):
     return render(request, 'formularios/alojamiento_form.html', {'form': form})
 
 
-
+@login_required
 def comentario_create(request):
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
-            form.save()  # Guarda la nueva reserva en la base de datos
+            comentario = form.save(commit=False)  # Guarda la nueva reserva en la base de datos
+            
+            if request.user.rol != 1:
+                comentario.usuario = request.user
+            
+            comentario.save()
             messages.success(request, 'Comentario creado con éxito.')
-            return redirect('listar_comentarios')  # Redirige a la lista de reservas después de crear
+            if request.user.rol == 1:
+                return redirect('listar_comentarios')
+            else:
+                return redirect('comentarios_usuario', id_usuario=request.user.id)
     else:
-        form = ComentarioForm()  # Si la solicitud es GET, muestra el formulario vacío
+        # Si el usuario es administrador, le permitimos seleccionar otro usuario
+        if request.user.rol == 1:
+            form = ComentarioForm()  # Mostrar formulario normal
+        else:
+            # Si el usuario no es administrador, pre-poblar el campo con su nombre y hacerlo solo de lectura
+            form = ComentarioForm()
+            form.fields['usuario'].initial = request.user  # Pre-poblar con el nombre del usuario
+            form.fields['usuario'].widget = forms.HiddenInput()  # Ocultamos el campo
 
     return render(request, 'formularios/comentario_form.html', {'form': form})
 
 
 
-
+@permission_required('viajes.crear_promocion')
 def promocion_create(request):
     if request.method == 'POST':
         form = PromocionForm(request.POST)
@@ -213,7 +243,7 @@ def promocion_create(request):
 
 #################################################################        AQUÍ COMIENZAN LOS READ      ##################################################################
 
-
+@permission_required('viajes.buscar_usuario')
 def usuario_busqueda(request):
     # Si se ha enviado el formulario (request.GET contiene datos)
     if request.GET:
@@ -256,6 +286,7 @@ def usuario_busqueda(request):
     return render(request, 'formularios/usuario_busqueda.html', {'formulario': formulario})
 
 
+
 @login_required
 def reserva_busqueda(request):
     # Si se ha enviado el formulario (request.GET contiene datos)
@@ -269,7 +300,7 @@ def reserva_busqueda(request):
             numero_personas = formulario.cleaned_data.get('numero_personas')
 
             # Empezamos con todos las reservas
-            if request.user.role == 1:
+            if request.user.rol == 1:
                 reservas = Reserva.objects.all()
             else :
                 reservas = Reserva.objects.filter(usuario = request.user)
@@ -308,7 +339,6 @@ def reserva_busqueda(request):
         formulario = BusquedaReservaForm()
 
     return render(request, 'formularios/reserva_busqueda.html', {'formulario': formulario})
-
 
 
 def destino_busqueda(request):
@@ -482,7 +512,7 @@ def promocion_busqueda(request):
 
 ################################################################        AQUÍ COMIENZAN LOS UPDATE      #################################################################
 
-
+@permission_required('viajes.actualizar_usuario')
 def actualizar_usuario(request, usuario_id):
     usuario = Usuario.objects.get(id=usuario_id)
 
@@ -522,6 +552,7 @@ def actualizar_usuario(request, usuario_id):
 
 
 
+@permission_required('viajes.actualizar_reserva')
 def actualizar_reserva(request, reserva_id):
     reserva = Reserva.objects.get(id=reserva_id)
 
@@ -559,6 +590,7 @@ def actualizar_reserva(request, reserva_id):
 
 
 
+@permission_required('viajes.actualizar_destino')
 def actualizar_destino(request, destino_id):
     destino = Destino.objects.get(id=destino_id)
 
@@ -596,6 +628,7 @@ def actualizar_destino(request, destino_id):
 
 
 
+@permission_required('viajes.actualizar_alojamiento')
 def actualizar_alojamiento(request, alojamiento_id):
     alojamiento = Alojamiento.objects.get(id=alojamiento_id)
 
@@ -632,7 +665,7 @@ def actualizar_alojamiento(request, alojamiento_id):
     return render(request, 'formularios/actualizar_alojamiento.html', {'form': form, 'alojamiento': alojamiento}) 
 
 
-
+@permission_required('viajes.actualizar_comentario')
 def actualizar_comentario(request, comentario_id):
     comentario = Comentario.objects.get(id=comentario_id)
 
@@ -670,6 +703,7 @@ def actualizar_comentario(request, comentario_id):
 
 
 
+@permission_required('viajes.actualizar_promocion')
 def actualizar_promocion(request, promocion_id):
     promocion = Promocion.objects.get(id=promocion_id)
 
@@ -709,6 +743,7 @@ def actualizar_promocion(request, promocion_id):
 
 ################################################################        AQUÍ COMIENZAN LOS DELETE      #################################################################
 
+@permission_required('viajes.eliminar_usuario')
 def eliminar_usuario(request,usuario_id):
     usuario = Usuario.objects.get(id=usuario_id)
     try:
@@ -720,6 +755,7 @@ def eliminar_usuario(request,usuario_id):
 
 
 
+@permission_required('viajes.eliminar_reserva')
 def eliminar_reserva(request,reserva_id):
     reserva = Reserva.objects.get(id=reserva_id)
     try:
@@ -730,7 +766,7 @@ def eliminar_reserva(request,reserva_id):
     return redirect('listar_reservas')
 
 
-
+@permission_required('viajes.eliminar_destino')
 def eliminar_destino(request,destino_id):
     destino = Destino.objects.get(id=destino_id)
     try:
@@ -742,6 +778,7 @@ def eliminar_destino(request,destino_id):
 
 
 
+@login_required
 def eliminar_alojamiento(request,alojamiento_id):
     alojamiento = Alojamiento.objects.get(id=alojamiento_id)
     try:
@@ -753,6 +790,7 @@ def eliminar_alojamiento(request,alojamiento_id):
 
 
 
+@permission_required('viajes.eliminar_comentario')
 def eliminar_comentario(request,comentario_id):
     comentario = Comentario.objects.get(id=comentario_id)
     try:
@@ -764,6 +802,7 @@ def eliminar_comentario(request,comentario_id):
 
 
 
+@login_required
 def eliminar_promocion(request,promocion_id):
     promocion = Promocion.objects.get(id=promocion_id)
     try:
@@ -782,7 +821,8 @@ def registrar_usuario(request):
         formulario = RegistroForm(request.POST)
         if formulario.is_valid():
             user = formulario.save()
-            rol = str(formulario.cleaned_data.get('rol'))
+            rol = int(formulario.cleaned_data.get('rol'))
+            user.user_permissions.clear()
             
             if(rol == Usuario.CLIENTE):
                 grupo = Group.objects.get(name='Clientes')
