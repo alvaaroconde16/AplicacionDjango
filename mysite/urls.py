@@ -25,6 +25,7 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/v1/', include("viajes.api_urls")),
+    path('oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider'))
 ]
 
 if settings.DEBUG:
