@@ -116,7 +116,7 @@ class TransporteSerializer(serializers.ModelSerializer):
 
 # Serializer para Transporte Mejorado
 class TransporteMejoradoSerializer(serializers.ModelSerializer):
-    destino = DestinoSerializer()
+    destino = DestinoSerializer(many=True)
     
     class Meta:
         model = Transporte
