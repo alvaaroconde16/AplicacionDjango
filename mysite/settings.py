@@ -153,22 +153,22 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 
-#OAUTH2_PROVIDER = {
-#    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Acceso a los grupos'},
-#    'ACCESS_TOKEN_EXPIRE_SECONDS': 360000000,
-#}
+OAUTH2_PROVIDER = {
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Acceso a los grupos'},
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 360000000,
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-#        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+#        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
     
-    'DEFAULT_RENDERER_CLASSES': (  # Asegura que devuelve JSON
-        'rest_framework.renderers.JSONRenderer',
-    ),
+#    'DEFAULT_RENDERER_CLASSES': (  # Asegura que devuelve JSON
+#        'rest_framework.renderers.JSONRenderer',
+#    ),
 }
