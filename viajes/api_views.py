@@ -27,3 +27,19 @@ def reservaMejorada_list(request):
     reservas = Reserva.objects.all()
     serializer = ReservaSerializerMejorado(reservas, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def alojamientoMejorado_list(request):
+    
+    reservas = Alojamiento.objects.all()
+    serializer = AlojamientoMejoradoSerializer(reservas, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def transporteMejorado_list(request):
+    
+    transportes = Transporte.objects.all()
+    serializer = TransporteMejoradoSerializer(transportes, many=True)
+    return Response(serializer.data)

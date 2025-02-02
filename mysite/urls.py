@@ -18,6 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt import views as jwt_views
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
+
+class Protected(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"content": "This view is protected"})
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +38,10 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/v1/', include("viajes.api_urls")),
+    path('oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('protected/', Protected.as_view(), name='protected'),
 ]
 
 if settings.DEBUG:

@@ -27,7 +27,7 @@ env = environ.Env()
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com','0.0.0.0']
 
@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'django_bootstrap_icons',
     'rest_framework',
+    'oauth2_provider',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -148,3 +150,25 @@ LOGOUT_REDIRECT_URL = 'index'
 
 # Configuración para el envío de correos en la consola (solo en desarrollo)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Acceso a los grupos'},
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 360000000,
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+#        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    
+#    'DEFAULT_RENDERER_CLASSES': (  # Asegura que devuelve JSON
+#        'rest_framework.renderers.JSONRenderer',
+#    ),
+}
