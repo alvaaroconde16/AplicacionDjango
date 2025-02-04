@@ -5,6 +5,11 @@ from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.forms import UserCreationForm
 
+
+class BusquedaReserva(forms.Form):
+    textoBusqueda = forms.CharField(required=True)
+
+
 class UsuarioForm(forms.ModelForm):
     
     class Meta:

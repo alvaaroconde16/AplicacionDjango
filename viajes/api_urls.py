@@ -8,4 +8,7 @@ urlpatterns = [
     path('reservasMejoradas', reservaMejorada_list),
     path('alojamientosMejorados', alojamientoMejorado_list),
     path('transportesMejorados', transporteMejorado_list),
+    
+    path('reservas/busqueda_simple',reserva_buscar),
+    path('reservas/busqueda_avanzada',reserva_buscar_avanzado),
 ]
