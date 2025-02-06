@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 import environ
 import os
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'),True)
 env = environ.Env()
 
 # SECURITY WARNING: keep the secret key used in production secret!

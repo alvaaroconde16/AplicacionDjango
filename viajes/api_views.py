@@ -74,68 +74,39 @@ def reserva_buscar(request):
 
 @api_view(['GET'])
 def reserva_buscar_avanzado(request):
-    if len(request.query_params) > 0:
+    if len(request.query_params) > 0:  # Si hay parámetros en la query
         formulario = BusquedaReservaForm(request.query_params)
-
+        
         if formulario.is_valid():
-            # Obtener los valores del formulario con valores por defecto si están vacíos
+            # Obtener los datos del formulario
             codigo_reserva = formulario.cleaned_data.get('codigo_reserva')
-            nombre_usuario = formulario.cleaned_data.get('nombre_usuario')
-            fecha_salida = formulario.cleaned_data.get('fecha_salida')
-            fecha_llegada = formulario.cleaned_data.get('fecha_llegada')
+            fecha = formulario.cleaned_data.get('fecha')
             numero_personas = formulario.cleaned_data.get('numero_personas')
-            precio_desde = formulario.cleaned_data.get('precio_desde')
-            precio_hasta = formulario.cleaned_data.get('precio_hasta')
-            fecha_desde = formulario.cleaned_data.get('fecha_desde')
-            fecha_hasta = formulario.cleaned_data.get('fecha_hasta')
 
-            # Crear el queryset inicial
-            reservas = Reserva.objects.all()
+            # Construir la QuerySet inicial
+            QSreservas = Reserva.objects.all()
 
-            # Filtrar por código de reserva si está presente
+            # Filtros por código de reserva
             if codigo_reserva:
-                reservas = reservas.filter(codigo_reserva__contains=codigo_reserva)
+                QSreservas = QSreservas.filter(codigo_reserva__icontains=codigo_reserva)
 
-            # Filtrar por nombre de usuario si está presente
-            if nombre_usuario:
-                reservas = reservas.filter(usuario__nombre__icontains=nombre_usuario)
+            # Filtro por fecha
+            if fecha:
+                QSreservas = QSreservas.filter(fecha=fecha)
 
-            # Filtrar por fecha de salida si está presente
-            if fecha_salida:
-                reservas = reservas.filter(fecha_salida__date=fecha_salida)
-
-            # Filtrar por fecha de llegada si está presente
-            if fecha_llegada:
-                reservas = reservas.filter(fecha_llegada__date=fecha_llegada)
-
-            # Filtrar por número de personas si está presente
+            # Filtro por número de personas
             if numero_personas:
-                reservas = reservas.filter(numero_personas=numero_personas)
-
-            # Filtrar por rango de precio si está presente
-            if precio_desde is not None:
-                reservas = reservas.filter(precio__gte=precio_desde)
-
-            if precio_hasta is not None:
-                reservas = reservas.filter(precio__lte=precio_hasta)
-
-            # Filtrar por rango de fechas si está presente
-            if fecha_desde:
-                reservas = reservas.filter(fecha_salida__gte=fecha_desde)
-
-            if fecha_hasta:
-                reservas = reservas.filter(fecha_salida__lte=fecha_hasta)
+                QSreservas = QSreservas.filter(numero_personas=numero_personas)
 
             # Serializar los resultados
+            reservas = QSreservas.all()
             serializer = ReservaSerializerMejorado(reservas, many=True)
-
-            # Retornar los resultados de la búsqueda
             return Response(serializer.data)
 
         else:
-            # Si el formulario no es válido, retornar los errores de validación
+            # Si el formulario no es válido, retornamos los errores
             return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
 
     else:
-        # Si no se pasan parámetros de búsqueda, retornar un error 400
-        return Response({"error": "No se pasaron parámetros de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
+        # Si no hay parámetros en la query
+        return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
