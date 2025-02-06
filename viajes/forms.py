@@ -435,12 +435,6 @@ class BusquedaReservaForm(forms.Form):
                 self.add_error('nombre', 'El nombre debe tener al menos 3 caracteres')
 
 
-            fechaHoy = date.today()
-            # Validación de fecha: Verificamos que la fecha no sea anterior a hoy
-            if fecha and fecha < fechaHoy:  # Asegúrate de que 'fecha' no sea None
-                self.add_error('fecha', 'La fecha no puede ser anterior a hoy')
-
-
             # Si se ha introducido un estado, debe ser uno de los valores válidos
             if numero_personas and numero_personas <= 0:
                 self.add_error('numero_personas', 'El numero de personas debe ser mayor que 0')

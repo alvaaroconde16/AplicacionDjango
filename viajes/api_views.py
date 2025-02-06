@@ -74,7 +74,8 @@ def reserva_buscar(request):
 
 @api_view(['GET'])
 def reserva_buscar_avanzado(request):
-    if len(request.query_params) > 0:  # Si hay parámetros en la query
+    # Si hay parámetros en la query
+    if len(request.query_params) > 0:
         formulario = BusquedaReservaForm(request.query_params)
         
         if formulario.is_valid():
@@ -82,6 +83,10 @@ def reserva_buscar_avanzado(request):
             codigo_reserva = formulario.cleaned_data.get('codigo_reserva')
             fecha = formulario.cleaned_data.get('fecha')
             numero_personas = formulario.cleaned_data.get('numero_personas')
+
+            # Si todos los campos están vacíos, devolver un error
+            if not codigo_reserva and not fecha and not numero_personas:
+                return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
 
             # Construir la QuerySet inicial
             QSreservas = Reserva.objects.all()
@@ -92,7 +97,7 @@ def reserva_buscar_avanzado(request):
 
             # Filtro por fecha
             if fecha:
-                QSreservas = QSreservas.filter(fecha=fecha)
+                QSreservas = QSreservas.filter(fecha_salida__date=fecha)
 
             # Filtro por número de personas
             if numero_personas:
@@ -104,9 +109,10 @@ def reserva_buscar_avanzado(request):
             return Response(serializer.data)
 
         else:
-            # Si el formulario no es válido, retornamos los errores
+            # Si el formulario no es válido, devolvemos los errores del formulario
             return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
 
     else:
         # Si no hay parámetros en la query
         return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
+
