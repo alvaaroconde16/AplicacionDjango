@@ -14,4 +14,5 @@ urlpatterns = [
     path('usuarios/busqueda_avanzada',usuario_buscar_avanzado),
     path('destinos/busqueda_avanzada',destino_buscar_avanzado),
     path('comentarios/busqueda_avanzada',comentario_buscar_avanzado),
+    path('alojamientos/busqueda_avanzada',alojamiento_buscar_avanzado),
 ]
