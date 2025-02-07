@@ -116,3 +116,164 @@ def reserva_buscar_avanzado(request):
         # Si no hay parámetros en la query
         return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+def usuario_buscar_avanzado(request):
+    if len(request.query_params) > 0:  # Si hay parámetros en la query
+        formulario = BusquedaUsuarioForm(request.query_params)
+        
+        if formulario.is_valid():
+            # Obtener los datos del formulario
+            nombre = formulario.cleaned_data.get('nombre')
+            correo = formulario.cleaned_data.get('correo')
+            edad = formulario.cleaned_data.get('edad')
+
+            # Construir la QuerySet inicial de usuarios
+            QSusuarios = Usuario.objects.all()
+
+            # Filtro por nombre
+            if nombre:
+                QSusuarios = QSusuarios.filter(nombre__icontains=nombre)
+
+            # Filtro por correo
+            if correo:
+                QSusuarios = QSusuarios.filter(correo__icontains=correo)
+
+            # Filtro por edad
+            if edad is not None:
+                QSusuarios = QSusuarios.filter(edad=edad)
+
+            # Serializar los resultados
+            usuarios = QSusuarios.all()
+            serializer = UsuarioSerializer(usuarios, many=True)  # Asumiendo que tienes un serializer para Usuario
+            return Response(serializer.data)
+
+        else:
+            # Si el formulario no es válido, retornamos los errores
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        # Si no hay parámetros en la query
+        return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+def destino_buscar_avanzado(request):
+    if len(request.query_params) > 0:  # Si hay parámetros en la query
+        formulario = BusquedaDestinoForm(request.query_params)
+        
+        if formulario.is_valid():
+            # Obtener los datos del formulario
+            nombre = formulario.cleaned_data.get('nombre')
+            pais = formulario.cleaned_data.get('pais')
+            popularidad = formulario.cleaned_data.get('popularidad')
+
+            # Construir la QuerySet inicial
+            QSdestinos = Destino.objects.all()
+
+            # Filtro por nombre del destino
+            if nombre:
+                QSdestinos = QSdestinos.filter(nombre__icontains=nombre)
+
+            # Filtro por país
+            if pais:
+                QSdestinos = QSdestinos.filter(pais__icontains=pais)
+
+            # Filtro por popularidad
+            if popularidad is not None:
+                QSdestinos = QSdestinos.filter(popularidad__gte=popularidad)
+
+            # Serializar los resultados
+            destinos = QSdestinos.all()
+            serializer = DestinoSerializer(destinos, many=True)
+            return Response(serializer.data)
+
+        else:
+            # Si el formulario no es válido, retornamos los errores
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        # Si no hay parámetros en la query
+        return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['GET'])
+def comentario_buscar_avanzado(request):
+    if len(request.query_params) > 0:  # Si hay parámetros en la query
+        formulario = BusquedaComentarioForm(request.query_params)
+        
+        if formulario.is_valid():
+            # Obtener los datos del formulario
+            titulo = formulario.cleaned_data.get('titulo')
+            contenido = formulario.cleaned_data.get('contenido')
+            calificacion = formulario.cleaned_data.get('calificacion')
+
+            # Construir la QuerySet inicial
+            QScomentarios = Comentario.objects.all()
+
+            # Filtros por título
+            if titulo:
+                QScomentarios = QScomentarios.filter(titulo__icontains=titulo)
+
+            # Filtro por contenido
+            if contenido:
+                QScomentarios = QScomentarios.filter(contenido__icontains=contenido)
+
+            # Filtro por calificación
+            if calificacion is not None:
+                QScomentarios = QScomentarios.filter(calificacion__gte=calificacion)
+
+
+            # Serializar los resultados
+            comentarios = QScomentarios.all()
+            serializer = ComentarioSerializer(comentarios, many=True)
+            return Response(serializer.data)
+
+        else:
+            # Si el formulario no es válido, retornamos los errores
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        # Si no hay parámetros en la query
+        return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+def alojamiento_buscar_avanzado(request):
+    if len(request.query_params) > 0:  # Si hay parámetros en la query
+        formulario = BusquedaAlojamientoForm(request.query_params)
+
+        if formulario.is_valid():
+            # Obtener los datos del formulario
+            nombre = formulario.cleaned_data.get('nombre')
+            tipo = formulario.cleaned_data.get('tipo')
+            capacidad = formulario.cleaned_data.get('capacidad')
+
+            # Construir la QuerySet inicial
+            QSalojamientos = Alojamiento.objects.all()
+
+            # Filtros por nombre del alojamiento
+            if nombre:
+                QSalojamientos = QSalojamientos.filter(nombre__icontains=nombre)
+
+            # Filtros por tipo de alojamiento
+            if tipo:
+                QSalojamientos = QSalojamientos.filter(tipo__icontains=tipo)
+
+            # Filtros por capacidad mínima
+            if capacidad:
+                QSalojamientos = QSalojamientos.filter(capacidad__gte=capacidad)
+
+            # Serializar los resultados
+            alojamientos = QSalojamientos.all()
+            serializer = AlojamientoMejoradoSerializer(alojamientos, many=True)
+            return Response(serializer.data)
+
+        else:
+            # Si el formulario no es válido, retornamos los errores
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        # Si no hay parámetros en la query
+        return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)

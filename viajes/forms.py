@@ -398,7 +398,7 @@ class BusquedaUsuarioForm(forms.Form):
 
             # Si la edad se ha introducido y es menor o igual a 0
             if edad is not None and edad <= 0:
-                self.add_error('edad', 'La edad no puede ser menor que 0')
+                self.add_error('edad', 'La edad no puede ser menor o igual que 0')
 
         return cleaned_data
     
@@ -432,7 +432,7 @@ class BusquedaReservaForm(forms.Form):
         else:
             # Si el nombre se ha introducido, debe tener al menos 3 caracteres
             if codigo_reserva and len(codigo_reserva) < 3:
-                self.add_error('nombre', 'El nombre debe tener al menos 3 caracteres')
+                self.add_error('codigo_reserva', 'El nombre debe tener al menos 3 caracteres')
 
 
             # Si se ha introducido un estado, debe ser uno de los valores válidos
@@ -472,6 +472,10 @@ class BusquedaDestinoForm(forms.Form):
             # Validación del nombre
             if nombre and len(nombre) < 3:
                 self.add_error('nombre', 'El nombre debe tener al menos 3 caracteres')
+                
+            # Validación del país
+            if pais and len(pais) < 3:
+                self.add_error('pais', 'El país debe tener al menos 3 caracteres')
             
             # Validación de popularidad mínima
             if popularidad is not None and (popularidad < 0 or popularidad > 5):
@@ -501,6 +505,19 @@ class BusquedaAlojamientoForm(forms.Form):
         # Verificamos que al menos un campo tenga un valor
         if not nombre and not tipo and not capacidad:
             self.add_error(None, 'Debe introducir al menos un valor en un campo del formulario.')
+            
+        # Validación del nombre
+            if nombre and len(nombre) < 3:
+                self.add_error('nombre', 'El nombre debe tener al menos 3 caracteres')
+                
+        # El tipo de alojamiento debe tener al menos 3 caracteres
+        if tipo and len(tipo) < 3:
+            self.add_error('tipo', 'El tipo de alojamiento debe tener al menos 3 caracteres')
+
+        # La capacidad debe ser mayor a 0
+        if capacidad is not None and capacidad <= 0:
+            self.add_error('capacidad', 'La capacidad debe ser mayor que 0')
+
         
         return cleaned_data
     
@@ -535,6 +552,10 @@ class BusquedaComentarioForm(forms.Form):
             # Validación del nombre
             if titulo and len(titulo) < 3:
                 self.add_error('titulo', 'El titulo debe tener al menos 3 caracteres')
+                
+            # Validación del nombre
+            if contenido and len(contenido) < 5:
+                self.add_error('contenido', 'El contenido debe tener al menos 5 caracteres')
             
             # Validación de calificacion mínima
             if calificacion is not None and (calificacion < 0 or calificacion > 5):
