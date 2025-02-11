@@ -277,3 +277,34 @@ def alojamiento_buscar_avanzado(request):
     else:
         # Si no hay parámetros en la query
         return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['GET'])
+def reserva_list(request):
+    reservas = Reserva.objects.all()
+    serializer = ReservaSerializer(reservas, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def usuario_list(request):
+    usuarios = Usuario.objects.all()
+    serializer = UsuarioSerializer(usuarios, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def reserva_create(request):
+    print(request.data)
+    reservaCreateSerializer = ReservaSerializerCreate(data=request.data)
+    if reservaCreateSerializer.is_valid():
+        try:
+            reservaCreateSerializer.save()
+            return Response("Reserva CREADA")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

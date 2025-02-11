@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+import datetime
 
 
 # Serializer para Usuario
@@ -145,3 +146,54 @@ class ExtraReservaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExtraReserva
         fields = '__all__'
+        
+        
+
+#Serializer para Reserva Create
+class ReservaSerializerCreate(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reserva
+        fields = [
+            'codigo_reserva', 'fecha_salida', 'fecha_llegada',
+            'numero_personas', 'precio', 'usuario'
+        ]
+
+    def validate_codigo_reserva(self, codigo_reserva):
+        reserva_existente = Reserva.objects.filter(codigo_reserva=codigo_reserva).first()
+        if reserva_existente:
+            if self.instance and reserva_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe una reserva con este código')
+        return codigo_reserva
+
+    def validate_fecha_salida(self, fecha_salida):
+        if fecha_salida < datetime.datetime.now():
+            raise serializers.ValidationError('La fecha de salida no puede ser en el pasado')
+        return fecha_salida
+
+    def validate_fecha_llegada(self, fecha_llegada):
+        if fecha_llegada <= self.initial_data.get('fecha_salida'):
+            raise serializers.ValidationError('La fecha de llegada debe ser después de la fecha de salida')
+        return fecha_llegada
+
+    def validate_numero_personas(self, numero_personas):
+        if numero_personas < 1:
+            raise serializers.ValidationError('Debe haber al menos una persona en la reserva')
+        return numero_personas
+
+    def create(self, validated_data):
+        reserva = Reserva.objects.create(**validated_data)
+        return reserva
+
+    def update(self, instance, validated_data):
+        instance.codigo_reserva = validated_data.get('codigo_reserva', instance.codigo_reserva)
+        instance.fecha_salida = validated_data.get('fecha_salida', instance.fecha_salida)
+        instance.fecha_llegada = validated_data.get('fecha_llegada', instance.fecha_llegada)
+        instance.numero_personas = validated_data.get('numero_personas', instance.numero_personas)
+        instance.precio = validated_data.get('precio', instance.precio)
+        instance.usuario = validated_data.get('usuario', instance.usuario)
+        instance.save()
+        
+        return instance
