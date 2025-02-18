@@ -326,7 +326,7 @@ def reserva_obtener(request, reserva_id):
 @api_view(['PUT'])
 def reserva_editar(request, reserva_id):
     # Buscar la reserva a actualizar
-    reserva = Reserva.objects.get(Reserva, id=reserva_id)
+    reserva = Reserva.objects.get(id=reserva_id)
 
     # Pasar la instancia al serializer
     reservaCreateSerializer = ReservaSerializerCreate(data=request.data, instance=reserva)
