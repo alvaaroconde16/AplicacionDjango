@@ -279,6 +279,9 @@ def alojamiento_buscar_avanzado(request):
         return Response({"error": "Debe proporcionar al menos un parámetro de búsqueda."}, status=status.HTTP_400_BAD_REQUEST)
     
     
+#######################################################################################################################################################################
+
+
 @api_view(['GET'])
 def reserva_list(request):
     reservas = Reserva.objects.all()
@@ -309,6 +312,47 @@ def reserva_create(request):
     else:
         return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+#######################################################################################################################################################################
+
+
+@api_view(['POST'])
+def reserva_create(request):
+    print(request.data)
+    reservaCreateSerializer = ReservaSerializerCreate(data=request.data)
+    if reservaCreateSerializer.is_valid():
+        try:
+            reservaCreateSerializer.save()
+            return Response("Reserva CREADA")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+@api_view(['POST'])
+def usuario_create(request):
+    print(request.data)
+    usuarioCreateSerializer = UsuarioSerializerCreate(data=request.data)
+    if usuarioCreateSerializer.is_valid():
+        try:
+            usuarioCreateSerializer.save()
+            return Response("Usuario CREADO")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(usuarioCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#######################################################################################################################################################################
+
     
 @api_view(['GET'])
 def reserva_obtener(request, reserva_id):
@@ -321,6 +365,22 @@ def reserva_obtener(request, reserva_id):
     # Serializar la reserva
     serializer = ReservaSerializerMejorado(reserva)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def usuario_obtener(request, usuario_id):
+    try:
+        # Obtener la reserva por ID
+        usuario = Usuario.objects.get(id=usuario_id)
+    except Reserva.DoesNotExist:
+        return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serializar la reserva
+    serializer = UsuarioSerializer(usuario)
+    return Response(serializer.data)
+
+
+#######################################################################################################################################################################
 
     
 @api_view(['PUT'])
@@ -341,3 +401,91 @@ def reserva_editar(request, reserva_id):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PUT'])
+def usuario_editar(request, usuario_id):
+    # Buscar el usuario a actualizar
+    usuario = Usuario.objects.get(id=usuario_id)
+
+    # Pasar la instancia al serializer
+    usuarioCreateSerializer = UsuarioSerializerCreate(data=request.data, instance=usuario)
+
+    if usuarioCreateSerializer.is_valid():
+        try:
+            usuarioCreateSerializer.save()
+            return Response("Usuario EDITADO")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(usuarioCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+#######################################################################################################################################################################
+
+
+@api_view(['PATCH'])
+def reserva_actualizar_codigo(request, reserva_id):
+    try:
+        reserva = Reserva.objects.get(id=reserva_id)
+    except Reserva.DoesNotExist:
+        return Response({"detail": "Reserva no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Usamos un serializer para actualizar solo el nombre de la reserva (o lo que necesites)
+    serializer = ReservaSerializerActualizarCodigo(data=request.data, instance=reserva)
+    
+    if serializer.is_valid():
+        try:
+            serializer.save()
+            return Response("Reserva actualizada con éxito", status=status.HTTP_200_OK)
+        except Exception as error:
+            print(repr(error))  # Para depuración
+            return Response({"detail": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PATCH'])
+def usuario_actualizar_nombre(request, usuario_id):
+    try:
+        usuario = Usuario.objects.get(id=usuario_id)
+    except Usuario.DoesNotExist:
+        return Response({"detail": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Usamos un serializer para actualizar solo el nombre de la reserva (o lo que necesites)
+    serializer = UsuarioSerializerActualizarNombre(data=request.data, instance=usuario)
+    
+    if serializer.is_valid():
+        try:
+            serializer.save()
+            return Response("Usuario actualizado con éxito", status=status.HTTP_200_OK)
+        except Exception as error:
+            print(repr(error))  # Para depuración
+            return Response({"detail": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+#######################################################################################################################################################################
+
+
+@api_view(['DELETE'])
+def reserva_eliminar(request, reserva_id):
+    reserva = Reserva.objects.get(id=reserva_id)
+    try:
+        reserva.delete()
+        return Response("Reserva ELIMINADA")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['DELETE'])
+def usuario_eliminar(request, usuario_id):
+    usuario = Usuario.objects.get(id=usuario_id)
+    try:
+        usuario.delete()
+        return Response("Usuario ELIMINADO")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

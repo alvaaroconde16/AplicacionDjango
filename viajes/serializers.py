@@ -209,3 +209,101 @@ class ReservaSerializerCreate(serializers.ModelSerializer):
         instance.save()
         
         return instance
+    
+    
+
+class UsuarioSerializerCreate(serializers.ModelSerializer):
+
+    class Meta:
+        model = Usuario
+        fields = [
+            'nombre', 'correo', 'telefono', 'edad',
+            'contraseña', 'fecha_registro'
+        ]
+
+    def validate_correo(self, correo):
+        # Verifica si ya existe un usuario con el mismo correo
+        usuario_existente = Usuario.objects.filter(correo=correo).first()
+        if usuario_existente:
+            if self.instance and usuario_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe un usuario con este correo electrónico')
+        return correo
+
+    def validate_telefono(self, telefono):
+        # Verifica que el teléfono tenga un formato válido (puedes ajustar esta expresión regular)
+        if not telefono.isdigit() or len(telefono) < 9:
+            raise serializers.ValidationError('El teléfono debe contener al menos 9 dígitos')
+        return telefono
+
+    def validate_edad(self, edad):
+        if edad < 18:
+            raise serializers.ValidationError('Debe ser mayor de 18 años para registrarse')
+        return edad
+
+    def validate_fecha_registro(self, fecha_registro):
+        if fecha_registro is None:
+            raise serializers.ValidationError('La fecha de registro es obligatoria')
+
+        if fecha_registro > timezone.now().date():
+            raise serializers.ValidationError('La fecha de registro no puede ser en el futuro')
+    
+        return fecha_registro
+
+    def validate_contraseña(self, contraseña):
+        # Asegura que la contraseña tenga al menos 8 caracteres
+        if len(contraseña) < 8:
+            raise serializers.ValidationError('La contraseña debe tener al menos 8 caracteres')
+        return contraseña
+
+    def update(self, instance, validated_data):
+        # Actualizar los datos de un usuario
+        instance.nombre = validated_data.get('nombre', instance.nombre)
+        instance.correo = validated_data.get('correo', instance.correo)
+        instance.telefono = validated_data.get('telefono', instance.telefono)
+        instance.edad = validated_data.get('edad', instance.edad)
+        instance.fecha_registro = validated_data.get('fecha_registro', instance.fecha_registro)
+        instance.contraseña = validated_data.get('contraseña', instance.contraseña)
+        instance.save()
+
+        return instance
+    
+
+#######################################################################################################################################################################
+
+
+class ReservaSerializerActualizarCodigo(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Reserva
+        fields = [
+            'codigo_reserva'
+        ]
+
+    def validate_codigo_reserva(self, codigo_reserva):
+        reserva_existente = Reserva.objects.filter(codigo_reserva=codigo_reserva).first()
+        if reserva_existente:
+            if self.instance and reserva_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe una reserva con este código')
+        return codigo_reserva
+    
+
+class UsuarioSerializerActualizarNombre(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Usuario
+        fields = [
+            'nombre'
+        ]
+
+    def validate_nombre(self, nombre):
+        usuario_existente = Usuario.objects.filter(nombre=nombre).first()
+        if usuario_existente:
+            if self.instance and usuario_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe usuario con este nombre')
+        return nombre
