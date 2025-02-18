@@ -15,4 +15,9 @@ urlpatterns = [
     path('destinos/busqueda_avanzada',destino_buscar_avanzado),
     path('comentarios/busqueda_avanzada',comentario_buscar_avanzado),
     path('alojamientos/busqueda_avanzada',alojamiento_buscar_avanzado),
+    
+    path('reservas/crear',reserva_create),
+    
+    path('reservas/editar/<int:reserva_id>',reserva_editar),
+    path('reservas/<int:reserva_id>',reserva_obtener),
 ]

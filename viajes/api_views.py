@@ -293,7 +293,7 @@ def usuario_list(request):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def reserva_create(request):
     print(request.data)
     reservaCreateSerializer = ReservaSerializerCreate(data=request.data)
@@ -305,6 +305,39 @@ def reserva_create(request):
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
             print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['GET'])
+def reserva_obtener(request, reserva_id):
+    try:
+        # Obtener la reserva por ID
+        reserva = Reserva.objects.get(id=reserva_id)
+    except Reserva.DoesNotExist:
+        return Response({'error': 'Reserva no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serializar la reserva
+    serializer = ReservaSerializerMejorado(reserva)
+    return Response(serializer.data)
+
+    
+@api_view(['PUT'])
+def reserva_editar(request, reserva_id):
+    # Buscar la reserva a actualizar
+    reserva = Reserva.objects.get(Reserva, id=reserva_id)
+
+    # Pasar la instancia al serializer
+    reservaCreateSerializer = ReservaSerializerCreate(data=request.data, instance=reserva)
+
+    if reservaCreateSerializer.is_valid():
+        try:
+            reservaCreateSerializer.save()
+            return Response("Reserva EDITADA")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

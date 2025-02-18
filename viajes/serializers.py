@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-import datetime
+from datetime import datetime
 
 
 # Serializer para Usuario
@@ -169,13 +169,25 @@ class ReservaSerializerCreate(serializers.ModelSerializer):
         return codigo_reserva
 
     def validate_fecha_salida(self, fecha_salida):
-        if fecha_salida < datetime.datetime.now():
+        if fecha_salida < timezone.now():
             raise serializers.ValidationError('La fecha de salida no puede ser en el pasado')
         return fecha_salida
 
+    
     def validate_fecha_llegada(self, fecha_llegada):
-        if fecha_llegada <= self.initial_data.get('fecha_salida'):
+        fecha_salida_str = self.initial_data.get('fecha_salida')
+
+        # Convertir el string a datetime (si viene en formato de fecha)
+        try:
+            fecha_salida = datetime.strptime(fecha_salida_str, "%Y-%m-%d")  # Asegura que coincida con el formato que estás usando
+            fecha_salida = timezone.make_aware(fecha_salida)  # Lo hacemos timezone-aware
+        except (ValueError, TypeError):
+            raise serializers.ValidationError('Formato de fecha inválido para fecha de salida')
+
+        # Ahora sí podemos comparar
+        if fecha_llegada <= fecha_salida:
             raise serializers.ValidationError('La fecha de llegada debe ser después de la fecha de salida')
+
         return fecha_llegada
 
     def validate_numero_personas(self, numero_personas):
