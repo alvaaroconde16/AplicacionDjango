@@ -269,6 +269,45 @@ class UsuarioSerializerCreate(serializers.ModelSerializer):
 
         return instance
     
+    
+class TransporteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transporte
+        fields = ['tipo', 'capacidad', 'disponible', 'costo_por_persona', 'destino']
+
+    def validate_tipo(self, tipo):
+        if not tipo or len(tipo.strip()) == 0:
+            raise serializers.ValidationError("El tipo de transporte es obligatorio")
+        return tipo
+
+    def validate_capacidad(self, capacidad):
+        if capacidad < 1:
+            raise serializers.ValidationError("La capacidad debe ser al menos 1")
+        return capacidad
+
+    def validate_costo_por_persona(self, costo_por_persona):
+        if costo_por_persona < 0:
+            raise serializers.ValidationError("El costo por persona no puede ser negativo")
+        return costo_por_persona
+
+    def validate_destino(self, destino):
+        if not destino:
+            raise serializers.ValidationError("Debe seleccionar al menos un destino")
+        return destino
+
+    def update(self, instance, validated_data):
+        instance.tipo = validated_data.get('tipo', instance.tipo)
+        instance.capacidad = validated_data.get('capacidad', instance.capacidad)
+        instance.disponible = validated_data.get('disponible', instance.disponible)
+        instance.costo_por_persona = validated_data.get('costo_por_persona', instance.costo_por_persona)
+
+        # Para manejar la relación many-to-many con destinos
+        if 'destino' in validated_data:
+            instance.destino.set(validated_data['destino'])
+
+        instance.save()
+        return instance
+    
 
 #######################################################################################################################################################################
 

@@ -20,6 +20,7 @@ urlpatterns = [
     # Rutas para los post
     path('reservas/crear',reserva_create),
     path('usuarios/crear',usuario_create),
+    path('transportes/crear',transporte_create),
     
     # Rutas para los put
     path('reservas/editar/<int:reserva_id>',reserva_editar),

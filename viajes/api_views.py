@@ -330,8 +330,7 @@ def reserva_create(request):
             print(repr(error))
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)  
 
 
 @api_view(['POST'])
@@ -349,6 +348,25 @@ def usuario_create(request):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(usuarioCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['POST'])
+def transporte_create(request):
+    print(request.data)
+    transporte_serializer = TransporteMejoradoSerializer(data=request.data)
+
+    if transporte_serializer.is_valid():
+        try:
+            transporte_serializer.save()
+            return Response("Transporte CREADO", status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(transporte_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 #######################################################################################################################################################################
