@@ -289,11 +289,12 @@ class TransporteSerializer(serializers.ModelSerializer):
         if costo_por_persona < 0:
             raise serializers.ValidationError("El costo por persona no puede ser negativo")
         return costo_por_persona
-
+    
     def validate_destino(self, destino):
         if not destino:
             raise serializers.ValidationError("Debe seleccionar al menos un destino")
         return destino
+    
 
     def update(self, instance, validated_data):
         instance.tipo = validated_data.get('tipo', instance.tipo)
