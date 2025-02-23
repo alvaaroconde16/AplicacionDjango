@@ -177,9 +177,11 @@ class ReservaSerializerCreate(serializers.ModelSerializer):
                 raise serializers.ValidationError('Ya existe una reserva con este código')
         return codigo_reserva
 
+
     def validate_fecha_salida(self, fecha_salida):
         if fecha_salida < timezone.now():
             raise serializers.ValidationError('La fecha de salida no puede ser en el pasado')
+        
         return fecha_salida
 
     
