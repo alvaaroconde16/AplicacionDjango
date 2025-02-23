@@ -48,6 +48,17 @@ def transporteMejorado_list(request):
 
 
 @api_view(['GET'])
+def extraMejorado_list(request):
+    
+    extras = Extra.objects.all()
+    serializer = ExtraMejoradoSerializer(extras, many=True)
+    return Response(serializer.data)
+
+
+#######################################################################################################################################################################
+
+
+@api_view(['GET'])
 def reserva_buscar(request):
     formulario = BusquedaReserva(request.query_params)
     
@@ -301,6 +312,20 @@ def destino_list(request):
     destinos = Destino.objects.all()
     serializer = DestinoSerializer(destinos, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def transporte_list(request):
+    transportes = Transporte.objects.all()
+    serializer = TransporteSerializer(transportes, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def extra_list(request):
+    extras = Extra.objects.all()
+    serializer = ExtraSerializer(extras, many=True)
+    return Response(serializer.data)
     
 
 #######################################################################################################################################################################
@@ -343,11 +368,11 @@ def usuario_create(request):
 @api_view(['POST'])
 def transporte_create(request):
     print(request.data)
-    transporte_serializer = TransporteSerializer(data=request.data)
+    transporteCreateSerializer = TransporteSerializerCreate(data=request.data)
 
-    if transporte_serializer.is_valid():
+    if transporteCreateSerializer.is_valid():
         try:
-            transporte_serializer.save()
+            transporteCreateSerializer.save()
             return Response("Transporte CREADO", status=status.HTTP_201_CREATED)
         except serializers.ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
@@ -355,8 +380,25 @@ def transporte_create(request):
             print(repr(error))
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-        return Response(transporte_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(transporteCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
+@api_view(['POST'])
+def extra_create(request):
+    print(request.data)
+    extraCreateSerializer = ExtraSerializerCreate(data=request.data)
+
+    if extraCreateSerializer.is_valid():
+        try:
+            extraCreateSerializer.save()
+            return Response("Extra CREADO", status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(extraCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #######################################################################################################################################################################
@@ -380,11 +422,37 @@ def usuario_obtener(request, usuario_id):
     try:
         # Obtener la reserva por ID
         usuario = Usuario.objects.get(id=usuario_id)
-    except Reserva.DoesNotExist:
+    except Usuario.DoesNotExist:
         return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
     # Serializar la reserva
     serializer = UsuarioSerializer(usuario)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def transporte_obtener(request, transporte_id):
+    try:
+        # Obtener la reserva por ID
+        transporte = Transporte.objects.get(id=transporte_id)
+    except Transporte.DoesNotExist:
+        return Response({'error': 'Transporte no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serializar la reserva
+    serializer = TransporteSerializer(transporte)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def extra_obtener(request, extra_id):
+    try:
+        # Obtener la reserva por ID
+        extra = Extra.objects.get(id=extra_id)
+    except Extra.DoesNotExist:
+        return Response({'error': 'Extra no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serializar la reserva
+    serializer = ExtraSerializer(extra)
     return Response(serializer.data)
 
 
@@ -429,6 +497,46 @@ def usuario_editar(request, usuario_id):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(usuarioCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PUT'])
+def transporte_editar(request, transporte_id):
+    # Buscar el usuario a actualizar
+    transporte = Transporte.objects.get(id=transporte_id)
+
+    # Pasar la instancia al serializer
+    transporteCreateSerializer = TransporteSerializerCreate(data=request.data, instance=transporte)
+
+    if transporteCreateSerializer.is_valid():
+        try:
+            transporteCreateSerializer.save()
+            return Response("Transporte EDITADO")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(transporteCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PUT'])
+def extra_editar(request, extra_id):
+    # Buscar el usuario a actualizar
+    extra = Extra.objects.get(id=extra_id)
+
+    # Pasar la instancia al serializer
+    extraCreateSerializer = ExtraSerializerCreate(data=request.data, instance=extra)
+
+    if extraCreateSerializer.is_valid():
+        try:
+            extraCreateSerializer.save()
+            return Response("Extra EDITADO")
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(extraCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 #######################################################################################################################################################################
@@ -476,6 +584,48 @@ def usuario_actualizar_nombre(request, usuario_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+@api_view(['PATCH'])
+def transporte_actualizar_capacidad(request, transporte_id):
+    try:
+        transporte = Transporte.objects.get(id=transporte_id)
+    except Transporte.DoesNotExist:
+        return Response({"detail": "Transporte no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Usamos un serializer para actualizar solo el nombre de la reserva (o lo que necesites)
+    serializer = TransporteSerializerActualizarCapacidad(data=request.data, instance=transporte)
+    
+    if serializer.is_valid():
+        try:
+            serializer.save()
+            return Response("Transporte actualizado con éxito", status=status.HTTP_200_OK)
+        except Exception as error:
+            print(repr(error))  # Para depuración
+            return Response({"detail": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PATCH'])
+def extra_actualizar_nombre(request, extra_id):
+    try:
+        extra = Extra.objects.get(id=extra_id)
+    except Extra.DoesNotExist:
+        return Response({"detail": "Extra no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Usamos un serializer para actualizar solo el nombre de la reserva (o lo que necesites)
+    serializer = ExtraSerializerActualizarNombre(data=request.data, instance=extra)
+    
+    if serializer.is_valid():
+        try:
+            serializer.save()
+            return Response("Extra actualizado con éxito", status=status.HTTP_200_OK)
+        except Exception as error:
+            print(repr(error))  # Para depuración
+            return Response({"detail": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
 #######################################################################################################################################################################
 
 
@@ -495,5 +645,25 @@ def usuario_eliminar(request, usuario_id):
     try:
         usuario.delete()
         return Response("Usuario ELIMINADO")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['DELETE'])
+def transporte_eliminar(request, transporte_id):
+    transporte = Transporte.objects.get(id=transporte_id)
+    try:
+        transporte.delete()
+        return Response("Transporte ELIMINADO")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['DELETE'])
+def extra_eliminar(request, extra_id):
+    extra = Extra.objects.get(id=extra_id)
+    try:
+        extra.delete()
+        return Response("Extra ELIMINADO")
     except Exception as error:
         return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

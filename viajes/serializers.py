@@ -98,6 +98,15 @@ class ExtraSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+# Serializer para Extra Mejorado
+class ExtraMejoradoSerializer(serializers.ModelSerializer):
+    reserva = ReservaSerializer(many=True)
+    
+    class Meta:
+        model = Extra
+        fields = '__all__'
+
+
 
 # Serializer para Pasaporte
 class PasaporteSerializer(serializers.ModelSerializer):
@@ -270,7 +279,7 @@ class UsuarioSerializerCreate(serializers.ModelSerializer):
         return instance
     
     
-class TransporteSerializer(serializers.ModelSerializer):
+class TransporteSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = Transporte
         fields = ['tipo', 'capacidad', 'disponible', 'costo_por_persona', 'destino']
@@ -278,7 +287,16 @@ class TransporteSerializer(serializers.ModelSerializer):
     def validate_tipo(self, tipo):
         if not tipo or len(tipo.strip()) == 0:
             raise serializers.ValidationError("El tipo de transporte es obligatorio")
+    
+    # Verifica si ya existe un transporte con el mismo tipo
+        transporte_existente = Transporte.objects.filter(tipo=tipo).first()
+        if transporte_existente:
+            if self.instance and transporte_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe un transporte de ese tipo')
         return tipo
+
 
     def validate_capacidad(self, capacidad):
         if capacidad < 1:
@@ -308,6 +326,55 @@ class TransporteSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class ExtraSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = Extra
+        fields = ['nombre', 'tipo', 'descripcion', 'precio', 'reserva']
+
+    def validate_nombre(self, nombre):
+        if not nombre or len(nombre.strip()) == 0:
+            raise serializers.ValidationError("El nombre del extra es obligatorio")
+        
+        # Verifica si ya existe un extra con el mismo nombre
+        extra_existente = Extra.objects.filter(nombre=nombre).first()
+        if extra_existente:
+            if self.instance and extra_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe un extra con este nombre')
+
+        return nombre
+
+    def validate_tipo(self, tipo):
+        if tipo not in dict(Extra.TIPOS_EXTRAS).keys():
+            raise serializers.ValidationError("El tipo de extra no es válido")
+        return tipo
+
+    def validate_precio(self, precio):
+        if precio < 0:
+            raise serializers.ValidationError("El precio no puede ser negativo")
+        return precio
+
+    def validate_reserva(self, reserva):
+        if not reserva:
+            raise serializers.ValidationError("Debe seleccionar al menos una reserva")
+        return reserva
+
+    def update(self, instance, validated_data):
+        instance.nombre = validated_data.get('nombre', instance.nombre)
+        instance.tipo = validated_data.get('tipo', instance.tipo)
+        instance.descripcion = validated_data.get('descripcion', instance.descripcion)
+        instance.precio = validated_data.get('precio', instance.precio)
+
+        # Para manejar la relación many-to-many con reservas
+        if 'reserva' in validated_data:
+            instance.reserva.set(validated_data['reserva'])
+
+        instance.save()
+        return instance
+
     
 
 #######################################################################################################################################################################
@@ -346,4 +413,47 @@ class UsuarioSerializerActualizarNombre(serializers.ModelSerializer):
                 pass
             else:
                 raise serializers.ValidationError('Ya existe usuario con este nombre')
+        return nombre
+    
+
+class TransporteSerializerActualizarCapacidad(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Transporte
+        fields = [
+            'capacidad',
+            'tipo'
+        ]
+
+    def validate_capacidad(self, capacidad):
+        if capacidad < 1:
+            raise serializers.ValidationError("La capacidad debe ser al menos 1")
+        return capacidad
+    
+
+    def validate_nombre(self, tipo):
+        transporte_existente = Transporte.objects.filter(tipo=tipo).first()
+        if transporte_existente:
+            if self.instance and transporte_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe transporte de ese tipo')
+        return tipo
+    
+
+class ExtraSerializerActualizarNombre(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Extra
+        fields = [
+            'nombre'
+        ]
+
+    def validate_nombre(self, nombre):
+        extra_existente = Extra.objects.filter(nombre=nombre).first()
+        if extra_existente:
+            if self.instance and extra_existente.id == self.instance.id:
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe extra con este nombre')
         return nombre
