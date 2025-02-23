@@ -229,7 +229,7 @@ class UsuarioSerializerCreate(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'nombre', 'correo', 'telefono', 'edad',
-            'contraseña', 'fecha_registro'
+            'contraseña', 'fecha_registro', 'imagen'
         ]
 
     def validate_correo(self, correo):
