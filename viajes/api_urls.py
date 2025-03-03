@@ -48,4 +48,7 @@ urlpatterns = [
     path('usuarios/eliminar/<int:usuario_id>', usuario_eliminar),
     path('transportes/eliminar/<int:transporte_id>', transporte_eliminar),
     path('extras/eliminar/<int:extra_id>', extra_eliminar),
+
+    path('registrar/usuario',registrar_usuario.as_view()),
+    path('usuario/token/<str:token>',obtener_usuario_token)
 ]

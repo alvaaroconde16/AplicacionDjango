@@ -1,10 +1,17 @@
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from .forms import *
 from django.db.models import Q
 from rest_framework import status
+from django.contrib.auth.models import Group
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from oauth2_provider.models import AccessToken 
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 
 
 @api_view(['GET'])
@@ -667,3 +674,58 @@ def extra_eliminar(request, extra_id):
         return Response("Extra ELIMINADO")
     except Exception as error:
         return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+#######################################################################################################################################################################
+
+
+# views.py
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+
+class registrar_usuario(generics.CreateAPIView):
+    serializer_class = UsuarioSerializerRegistro
+    permission_classes = [AllowAny]
+    
+    def create(self, request, *args, **kwargs):
+        serializers = UsuarioSerializerRegistro(data=request.data)
+        if serializers.is_valid():
+            try:
+                rol = request.data.get('rol')
+                user = Usuario.objects.create_user(
+                    nombre = serializers.data.get("nombre"),
+                    username = serializers.data.get("username"), 
+                    correo = serializers.data.get("correo"), 
+                    edad = serializers.data.get("edad"), 
+                    telefono = serializers.data.get("telefono"), 
+                    password = serializers.data.get("password1"),
+                    contraseña = serializers.data.get("password1"),
+                    rol = rol,
+                )
+                if(rol == Usuario.CLIENTE):
+                    grupo = Group.objects.get(name='Clientes') 
+                    grupo.user_set.add(user)
+                    cliente = Cliente.objects.create(usuario = user)
+                    cliente.save()
+                elif(rol == Usuario.PROVEEDOR):
+                    grupo = Group.objects.get(name='Proveedores') 
+                    grupo.user_set.add(user)
+                    proveedor = Proveedor.objects.create(usuario = user)
+                    proveedor.save()
+                usuarioSerializado = UsuarioSerializer(user)
+                return Response(usuarioSerializado.data)
+            except Exception as error:
+                print(repr(error))
+                return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+from oauth2_provider.models import AccessToken     
+@api_view(['GET'])
+def obtener_usuario_token(request,token):
+    ModeloToken = AccessToken.objects.get(token=token)
+    usuario = Usuario.objects.get(id=ModeloToken.user_id)
+    serializer = UsuarioSerializer(usuario)
+    return Response(serializer.data)

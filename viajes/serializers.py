@@ -459,3 +459,24 @@ class ExtraSerializerActualizarNombre(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError('Ya existe extra con este nombre')
         return nombre
+    
+
+#######################################################################################################################################################################
+
+
+class UsuarioSerializerRegistro(serializers.Serializer):
+    
+    nombre = serializers.CharField()
+    username = serializers.CharField()
+    correo = serializers.EmailField()
+    edad = serializers.CharField()
+    telefono = serializers.CharField()
+    password1 = serializers.CharField()
+    password2 = serializers.CharField()
+    rol = serializers.IntegerField()
+    
+    def validate_username(self,username):
+        usuario = Usuario.objects.filter(username=username).first()
+        if(not usuario is None):
+            raise serializers.ValidationError('Ya existe un usuario con ese nombre')
+        return username
