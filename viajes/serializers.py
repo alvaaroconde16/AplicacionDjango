@@ -376,6 +376,45 @@ class ExtraSerializerCreate(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+
+class ComentarioSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = Comentario
+        fields = ['titulo', 'contenido', 'calificacion', 'usuario']
+
+    def validate_titulo(self, titulo):
+        # Verifica si ya existe un comentario con el mismo título
+        comentario_existente = Comentario.objects.filter(titulo=titulo).first()
+        if comentario_existente:
+            if self.instance and comentario_existente.id == self.instance.id:
+                pass  # Si es el mismo comentario en edición, lo permitimos
+            else:
+                raise serializers.ValidationError('Ya existe un comentario con este título')
+        return titulo
+
+    def validate_contenido(self, contenido):
+        # Verifica que el contenido tenga al menos 10 caracteres
+        if len(contenido.strip()) < 10:
+            raise serializers.ValidationError("El contenido debe tener al menos 10 caracteres")
+        return contenido
+
+    def validate_calificacion(self, calificacion):
+        if not (0 <= calificacion <= 5):
+            raise serializers.ValidationError('La calificación debe estar entre 0 y 5.')
+        return calificacion
+
+    def create(self, validated_data):
+        return Comentario.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.titulo = validated_data.get('titulo', instance.titulo)
+        instance.contenido = validated_data.get('contenido', instance.contenido)
+        instance.calificacion = validated_data.get('calificacion', instance.calificacion)
+        instance.usuario = validated_data.get('usuario', instance.usuario)
+        instance.save()
+        return instance
+
 
     
 

@@ -62,6 +62,22 @@ def extraMejorado_list(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def comentario_list(request):
+    
+    comentarios = Comentario.objects.all()
+    serializer = ComentarioSerializer(comentarios, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def destino_list(request):
+    
+    destinos = Destino.objects.all()
+    serializer = DestinoSerializer(destinos, many=True)
+    return Response(serializer.data)
+
+
 #######################################################################################################################################################################
 
 
@@ -729,3 +745,82 @@ def obtener_usuario_token(request,token):
     usuario = Usuario.objects.get(id=ModeloToken.user_id)
     serializer = UsuarioSerializer(usuario)
     return Response(serializer.data)
+
+
+#######################################################################################################################################################################
+
+
+@api_view(['POST'])
+def crear_reserva_usuario(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "No estás autenticado."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    data = request.data.copy()
+    data['usuario'] = request.user.id  # Asociamos la reserva al usuario autenticado
+
+    reservaCreateSerializer = ReservaSerializerCreate(data=data)
+    
+    if reservaCreateSerializer.is_valid():
+        try:
+            reservaCreateSerializer.save()
+            return Response({"mensaje": "Reserva creada con éxito"}, status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response({"error": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+def crear_comentario_usuario(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "No estás autenticado."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    data = request.data.copy()
+    data['usuario'] = request.user.id  # Asociamos el comentario al usuario autenticado
+
+    comentarioCreateSerializer = ComentarioSerializerCreate(data=data)
+    
+    if comentarioCreateSerializer.is_valid():
+        try:
+            comentarioCreateSerializer.save()
+            return Response({"mensaje": "Comentario creado con éxito"}, status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response({"error": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(comentarioCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+def listar_reservas_usuario(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "No estás autenticado."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    print(f"Usuario autenticado: {request.user.username}") 
+
+    # Filtramos las reservas del usuario autenticado
+    reservas = Reserva.objects.filter(usuario=request.user)
+    print(f"Reservas encontradas: {reservas}")
+
+    # Serializamos los resultados usando el serializador simple
+    reserva_serializer = ReservaSerializer(reservas, many=True)
+
+    return Response(reserva_serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def listar_comentarios_usuario(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "No estás autenticado."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # Filtramos los comentarios del usuario autenticado
+    comentarios = Comentario.objects.filter(usuario=request.user)
+    print(f"Comentarios encontrados: {comentarios}")
+
+    # Serializamos los resultados usando el serializador de Comentarios
+    comentario_serializer = ComentarioSerializer(comentarios, many=True)
+
+    return Response(comentario_serializer.data, status=status.HTTP_200_OK)

@@ -5,6 +5,8 @@ from .api_views import *
 urlpatterns = [
     path('usuarios', usuario_list),
     path('reservas', reserva_list),
+    path('comentarios', comentario_list),
+    path('destinos', destino_list),
     path('reservasMejoradas', reservaMejorada_list),
     path('alojamientosMejorados', alojamientoMejorado_list),
     path('transportesMejorados', transporteMejorado_list),
@@ -50,5 +52,10 @@ urlpatterns = [
     path('extras/eliminar/<int:extra_id>', extra_eliminar),
 
     path('registrar/usuario',registrar_usuario.as_view()),
-    path('usuario/token/<str:token>',obtener_usuario_token)
+    path('usuario/token/<str:token>',obtener_usuario_token),
+
+    path('reservas/crear_usuario',crear_reserva_usuario),
+    path('comentarios/crear_usuario',crear_comentario_usuario),
+    path('reservas/listar_usuario', listar_reservas_usuario),
+    path('comentarios/listar_usuario', listar_comentarios_usuario),
 ]
