@@ -68,6 +68,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:4200",
     "http://0.0.0.0:8081",
+    "http://alvaroconde.pythonanywhere.com",
 ]
 
 ROOT_URLCONF = 'mysite.urls'
